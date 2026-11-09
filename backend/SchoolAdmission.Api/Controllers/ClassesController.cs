@@ -37,15 +37,16 @@ public class ClassesController : ControllerBase
             Id = admissionClass.Id,
             Name = admissionClass.Name,
             TotalSeats = admissionClass.TotalSeats,
-            // HeldSeats = 0,
-            // ConfirmedSeats = 0,
-            // AvailableSeats = admissionClass.TotalSeats
+            HeldSeats = 0,
+            ConfirmedSeats = 0,
+            AvailableSeats = admissionClass.TotalSeats
         };
 
-        return CreatedAtAction(
-            nameof(GetClass),
-            new { classId = admissionClass.Id },
-            response);
+      return CreatedAtAction(
+    nameof(GetClass),
+    new { classId = admissionClass.Id },
+    new { response.Name, response.TotalSeats }
+);
     }
 
     
