@@ -1,8 +1,7 @@
+
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SchoolAdmission.Api.Data;
 using SchoolAdmission.Api.DTOs;
-using SchoolAdmission.Api.Models;
+using SchoolAdmission.Api.Services;
 
 namespace SchoolAdmission.Api.Controllers;
 
@@ -10,110 +9,52 @@ namespace SchoolAdmission.Api.Controllers;
 [Route("classes")]
 public class ClassesController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
+    private readonly ClassService _classService;
 
-    public ClassesController(ApplicationDbContext db)
+
+    public ClassesController(ClassService classService)
     {
-        _db = db;
+        _classService = classService;
     }
 
- 
+
     [HttpPost]
     public async Task<ActionResult<ClassResponse>> CreateClass(
         [FromBody] CreateClassRequest request)
     {
-        var admissionClass = new AdmissionClass
-        {
-            Name = request.Name.Trim(),
-            TotalSeats = request.TotalSeats
-        };
+       
+        var response = await _classService.CreateClassAsync(request);
 
-        _db.Classes.Add(admissionClass);
 
-        await _db.SaveChangesAsync();
-
-        var response = new ClassResponse
-        {
-            Id = admissionClass.Id,
-            Name = admissionClass.Name,
-            TotalSeats = admissionClass.TotalSeats,
-            HeldSeats = 0,
-            ConfirmedSeats = 0,
-            AvailableSeats = admissionClass.TotalSeats
-        };
-
-      return CreatedAtAction(
-    nameof(GetClass),
-    new { classId = admissionClass.Id },
-    new { response.Name, response.TotalSeats }
-);
+        return CreatedAtAction(
+            nameof(GetClass),
+            new { classId = response.Id },
+            new
+            {
+                id = response.Id,
+                name = response.Name,
+                totalSeats = response.TotalSeats
+            });
     }
 
-    
+   
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ClassResponse>>> GetClasses()
     {
-        var now = DateTimeOffset.UtcNow;
-
-        var classes = await _db.Classes
-            .AsNoTracking()
-            .Select(c => new ClassResponse
-            {
-                Id = c.Id,
-                Name = c.Name,
-                TotalSeats = c.TotalSeats,
-
-                HeldSeats = c.Holds.Count(h =>
-                    h.Status == HoldStatus.HELD &&
-                    h.ExpiresAt > now),
-
-                ConfirmedSeats = c.Holds.Count(h =>
-                    h.Status == HoldStatus.CONFIRMED),
-
-                AvailableSeats = c.TotalSeats -
-                    c.Holds.Count(h =>
-                        h.Status == HoldStatus.HELD &&
-                        h.ExpiresAt > now) -
-                    c.Holds.Count(h =>
-                        h.Status == HoldStatus.CONFIRMED)
-            })
-            .ToListAsync();
+     
+        var classes = await _classService.GetClassesAsync();
 
         return Ok(classes);
     }
 
-  
+   
     [HttpGet("{classId:guid}")]
-    public async Task<ActionResult<ClassResponse>> GetClass(
-        Guid classId)
+    public async Task<ActionResult<ClassResponse>> GetClass(Guid classId)
     {
-        var now = DateTimeOffset.UtcNow;
+        
+        var result = await _classService.GetClassByIdAsync(classId);
 
-        var result = await _db.Classes
-            .AsNoTracking()
-            .Where(c => c.Id == classId)
-            .Select(c => new ClassResponse
-            {
-                Id = c.Id,
-                Name = c.Name,
-                TotalSeats = c.TotalSeats,
-
-                HeldSeats = c.Holds.Count(h =>
-                    h.Status == HoldStatus.HELD &&
-                    h.ExpiresAt > now),
-
-                ConfirmedSeats = c.Holds.Count(h =>
-                    h.Status == HoldStatus.CONFIRMED),
-
-                AvailableSeats = c.TotalSeats -
-                    c.Holds.Count(h =>
-                        h.Status == HoldStatus.HELD &&
-                        h.ExpiresAt > now) -
-                    c.Holds.Count(h =>
-                        h.Status == HoldStatus.CONFIRMED)
-            })
-            .FirstOrDefaultAsync();
-
+  
         if (result is null)
             return NotFound(new { message = "Class not found." });
 
