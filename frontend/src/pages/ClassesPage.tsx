@@ -7,6 +7,8 @@ import {
   Armchair,
   AlertCircle,
 } from 'lucide-react'
+import { useCreateHold } from '@/features/admissions/hooks/useAdmissions'
+import { useStudent } from '@/features/student/StudentProvider'
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 import { useCreateClass } from '@/features/classes/hooks/useClasses'
@@ -45,6 +47,31 @@ async function handleCreateClass(event: FormEvent<HTMLFormElement>) {
   } catch (error) {
     toast.error(
       error instanceof Error ? error.message : 'Failed to create class.',
+    )
+  }
+}
+
+const createHold = useCreateHold()
+const { studentId } = useStudent()
+
+async function handleReserveSeat(classId: string) {
+  if (!studentId) {
+    toast.error('Please save your Student ID before reserving a seat.')
+    return
+  }
+
+  try {
+    const hold = await createHold.mutateAsync({
+      classId,
+      studentId,
+    })
+
+    toast.success(
+      `Seat reserved! Your hold expires at ${new Date(hold.expiresAt).toLocaleTimeString()}.`,
+    )
+  } catch (error) {
+    toast.error(
+      error instanceof Error ? error.message : 'Unable to reserve this seat.',
     )
   }
 }
@@ -245,6 +272,20 @@ async function handleCreateClass(event: FormEvent<HTMLFormElement>) {
                   />
                 </div>
               </div>
+
+
+              <button
+  type="button"
+  onClick={() => handleReserveSeat(item.id)}
+  disabled={item.availableSeats <= 0 || createHold.isPending}
+  className="mt-5 h-10 w-full rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+>
+  {item.availableSeats <= 0
+    ? 'No seats available'
+    : createHold.isPending
+      ? 'Reserving...'
+      : 'Reserve a seat'}
+</button>
             </article>
           )
         })}
