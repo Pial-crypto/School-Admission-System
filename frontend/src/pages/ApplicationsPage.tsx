@@ -176,7 +176,7 @@ export default function ApplicationsPage() {
                       }
                       className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                     >
-                      {confirmHold.isPending ? 'Confirming...' : 'Confirm application'}
+                      {confirmHold.isPending ? 'Confirming...' : 'Pay & Confirm'}
                     </button>
 
                     <button
