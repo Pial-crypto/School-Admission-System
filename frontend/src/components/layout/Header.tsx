@@ -1,7 +1,7 @@
 
 import { Bell, Search } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
-
+import StudentIdControl from '@/features/student/components/StudentIdControl'
 const pageTitles: Record<string, string> = {
   '/': 'Overview',
   '/classes': 'Classes & Shifts',
@@ -22,6 +22,8 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-3">
+      
+      <StudentIdControl />
         <button
           type="button"
           aria-label="Search"
