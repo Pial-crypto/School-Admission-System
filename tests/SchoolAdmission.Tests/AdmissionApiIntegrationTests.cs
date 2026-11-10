@@ -278,7 +278,7 @@ private async Task<Guid> CreateClassAsync(
         return await _client.SendAsync(request);
     }
 
-    [Fact]
+//     [Fact]
 // public async Task ExpiredHold_ShouldReleaseSeatAndUpdateStatus()
 // {
 
