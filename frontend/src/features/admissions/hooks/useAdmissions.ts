@@ -20,6 +20,8 @@ export function useMyHolds(studentId: string) {
     queryKey: admissionKeys.myHolds(studentId),
     queryFn: () => admissionsApi.getMyHolds(studentId),
     enabled: Boolean(studentId),
+    refetchInterval: 5_000,
+    refetchOnWindowFocus: true,
   })
 }
 

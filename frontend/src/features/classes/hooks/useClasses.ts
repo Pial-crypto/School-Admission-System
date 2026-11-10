@@ -13,6 +13,8 @@ export function useClasses() {
   return useQuery({
     queryKey: classKeys.all,
     queryFn: classesApi.getAll,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   })
 }
 
