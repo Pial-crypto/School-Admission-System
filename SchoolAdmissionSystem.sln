@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{DF42
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolAdmission.Api", "backend\SchoolAdmission.Api\SchoolAdmission.Api.csproj", "{C26F606D-4902-4803-917F-355EF2C06D35}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0C871FF7-7A9B-4FE7-B049-CB058479ECDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolAdmission.Tests", "tests\SchoolAdmission.Tests\SchoolAdmission.Tests.csproj", "{E5E5E540-8F54-4BE4-914A-568E80D7928F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +24,13 @@ Global
 		{C26F606D-4902-4803-917F-355EF2C06D35}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C26F606D-4902-4803-917F-355EF2C06D35}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C26F606D-4902-4803-917F-355EF2C06D35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5E5E540-8F54-4BE4-914A-568E80D7928F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5E5E540-8F54-4BE4-914A-568E80D7928F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5E5E540-8F54-4BE4-914A-568E80D7928F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5E5E540-8F54-4BE4-914A-568E80D7928F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C26F606D-4902-4803-917F-355EF2C06D35} = {DF42DDAF-D913-4BF1-AB07-7A6955765279}
+		{E5E5E540-8F54-4BE4-914A-568E80D7928F} = {0C871FF7-7A9B-4FE7-B049-CB058479ECDA}
 	EndGlobalSection
 EndGlobal
