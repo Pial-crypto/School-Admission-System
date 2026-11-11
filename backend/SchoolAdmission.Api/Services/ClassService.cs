@@ -22,7 +22,7 @@ public async Task<ClassResponse> CreateClassAsync(
 {
     var className = request.Name.Trim();
 
-    if (await _db.Classes.AnyAsync(c => c.Name == className))
+    if (await _db.Classes.AnyAsync(c => c.Name.ToLower() == className.ToLower()))
     {
         throw new Exception("Class name already exists.");
     }

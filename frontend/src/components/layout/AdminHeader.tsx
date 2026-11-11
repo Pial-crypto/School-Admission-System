@@ -33,13 +33,13 @@ export default function AdminHeader() {
           <span className="hidden sm:inline">Switch Portal</span>
         </Link>
 
-        <button
+        {/* <button
           type="button"
           aria-label="Notifications"
           className="flex size-10 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50"
         >
           <Bell size={19} />
-        </button>
+        </button> */}
 
         <div className="flex size-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-700">
           <ShieldCheck size={20} />
