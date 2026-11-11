@@ -356,6 +356,18 @@ concurrency interleaving.
     the areas where they assisted, identified mistakes, and the human
     review/fixes.
 
+
+## Security and Known Limitations
+
+Authentication and role-based authorization are not implemented because they were outside the scope of the assignment requirements.
+
+- The Admin portal and its class-management endpoints are accessible without authentication. Therefore, anyone who can access the application can perform admin operations.
+- Student identity is provided through the `X-Student-Id` request header. It is used to associate holds and applications with students, but it is not securely authenticated.
+- The application is designed for assessment and demonstration purposes, not direct production deployment.
+
+For a production environment, authentication, role-based authorization (Admin/Student), and secure student identity verification should be implemented.
+
+
 ## Notes
 
 -   This project is intended to run locally for evaluation and
