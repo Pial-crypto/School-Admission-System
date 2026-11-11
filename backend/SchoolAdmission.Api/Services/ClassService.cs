@@ -17,37 +17,38 @@ public class ClassService
     }
 
 
-    public async Task<ClassResponse> CreateClassAsync(
-        CreateClassRequest request)
+public async Task<ClassResponse> CreateClassAsync(
+    CreateClassRequest request)
+{
+    var className = request.Name.Trim();
+
+    if (await _db.Classes.AnyAsync(c => c.Name == className))
     {
-      
-        var admissionClass = new AdmissionClass
-        {
-            Name = request.Name.Trim(),
-            TotalSeats = request.TotalSeats
-        };
-
-
-        _db.Classes.Add(admissionClass);
-
-     
-        await _db.SaveChangesAsync();
-
-       
-        var response = new ClassResponse
-        {
-            Id = admissionClass.Id,
-            Name = admissionClass.Name,
-            TotalSeats = admissionClass.TotalSeats,
-            HeldSeats = 0,
-            ConfirmedSeats = 0,
-            AvailableSeats = admissionClass.TotalSeats
-        };
-
-       
-        return response;
+        throw new Exception("Class name already exists.");
     }
 
+    var admissionClass = new AdmissionClass
+    {
+        Name = className,
+        TotalSeats = request.TotalSeats
+    };
+
+    _db.Classes.Add(admissionClass);
+
+    await _db.SaveChangesAsync();
+
+    var response = new ClassResponse
+    {
+        Id = admissionClass.Id,
+        Name = admissionClass.Name,
+        TotalSeats = admissionClass.TotalSeats,
+        HeldSeats = 0,
+        ConfirmedSeats = 0,
+        AvailableSeats = admissionClass.TotalSeats
+    };
+
+    return response;
+}
   
     public async Task<List<ClassResponse>> GetClassesAsync()
     {

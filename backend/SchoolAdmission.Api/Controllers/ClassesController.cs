@@ -19,12 +19,12 @@ public class ClassesController : ControllerBase
 
 
     [HttpPost]
-    public async Task<ActionResult<ClassResponse>> CreateClass(
-        [FromBody] CreateClassRequest request)
+public async Task<ActionResult<ClassResponse>> CreateClass(
+    [FromBody] CreateClassRequest request)
+{
+    try
     {
-       
         var response = await _classService.CreateClassAsync(request);
-
 
         return CreatedAtAction(
             nameof(GetClass),
@@ -36,7 +36,11 @@ public class ClassesController : ControllerBase
                 totalSeats = response.TotalSeats
             });
     }
-
+    catch (Exception ex) when (ex.Message == "Class name already exists.")
+    {
+        return Conflict(new { message = ex.Message });
+    }
+}
    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ClassResponse>>> GetClasses()
