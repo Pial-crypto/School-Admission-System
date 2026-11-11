@@ -26,12 +26,23 @@ public class HoldService
                 "HOLD_DURATION_SECONDS must be greater than zero.");
     }
 
+
+private async Task AcquireStudentLockAsync(string studentId)
+{
+    await _db.Database.ExecuteSqlInterpolatedAsync($"""
+        SELECT pg_advisory_xact_lock(
+            hashtextextended({studentId}, 0)
+        )
+        """);
+}
+
+
     public async Task<(SeatHold? Hold, string? Error, bool NotFound)>
         CreateHoldAsync(Guid classId, string studentId)
     {
         await using var transaction =
             await _db.Database.BeginTransactionAsync();
-
+await AcquireStudentLockAsync(studentId);
 
         var admissionClass = await _db.Classes
             .FromSqlInterpolated($"""
@@ -55,7 +66,16 @@ public class HoldService
             .ExecuteUpdateAsync(update => update
                 .SetProperty(h => h.Status, HoldStatus.EXPIRED));
 
+var alreadyConfirmed = await _db.Holds.AnyAsync(h =>
+    h.StudentId == studentId &&
+    h.Status == HoldStatus.CONFIRMED);
 
+if (alreadyConfirmed)
+{
+    return (null,
+        "You already have a confirmed admission in another class.",
+        false);
+}
         var existingHold = await _db.Holds.AnyAsync(h =>
             h.ClassId == classId &&
             h.StudentId == studentId &&
@@ -114,6 +134,7 @@ public async Task<SeatHold?> GetHoldAsync(Guid holdId)
 
 
 
+
 public async Task<(SeatHold? Hold, string? Error, int StatusCode)>
     ConfirmHoldAsync(Guid holdId, string studentId)
 {
@@ -121,11 +142,12 @@ public async Task<(SeatHold? Hold, string? Error, int StatusCode)>
         .AsNoTracking()
         .FirstOrDefaultAsync(h => h.Id == holdId);
 
-    if (initialHold == null)
+    if (initialHold == null || initialHold.StudentId != studentId)
         return (null, "Hold not found.", 404);
 
     await using var transaction =
         await _db.Database.BeginTransactionAsync();
+await AcquireStudentLockAsync(studentId);
 
   
     await _db.Classes
@@ -141,7 +163,6 @@ public async Task<(SeatHold? Hold, string? Error, int StatusCode)>
 
     if (hold == null || hold.StudentId != studentId)
         return (null, "Hold not found.", 404);
-
 
     if (hold.Status == HoldStatus.CONFIRMED)
     {
@@ -163,16 +184,37 @@ public async Task<(SeatHold? Hold, string? Error, int StatusCode)>
     {
         return (null, "This hold cannot be confirmed.", 409);
     }
+    var anotherConfirmed = await _db.Holds.AnyAsync(h =>
+        h.StudentId == studentId &&
+        h.Id != holdId &&
+        h.Status == HoldStatus.CONFIRMED);
+
+    if (anotherConfirmed)
+    {
+        return (null,
+            "You already have a confirmed admission in another class.",
+            409);
+    }
+
+    var now = DateTimeOffset.UtcNow;
 
     hold.Status = HoldStatus.CONFIRMED;
-    hold.ConfirmedAt = DateTimeOffset.UtcNow;
+    hold.ConfirmedAt = now;
+
+    
+    await _db.Holds
+        .Where(h =>
+            h.StudentId == studentId &&
+            h.Id != holdId &&
+            h.Status == HoldStatus.HELD)
+        .ExecuteUpdateAsync(update => update
+            .SetProperty(h => h.Status, HoldStatus.CANCELLED));
 
     await _db.SaveChangesAsync();
     await transaction.CommitAsync();
 
     return (hold, null, 200);
 }
-
 
 
 public async Task<(bool Success, string? Error, int StatusCode)>

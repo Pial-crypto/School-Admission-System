@@ -77,6 +77,10 @@ namespace SchoolAdmission.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" = 'CONFIRMED'");
+
                     b.HasIndex("ClassId", "StudentId")
                         .IsUnique()
                         .HasFilter("\"Status\" IN ('HELD', 'CONFIRMED')");

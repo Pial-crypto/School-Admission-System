@@ -17,6 +17,11 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<SeatHold>()
+    .HasIndex(h => h.StudentId)
+    .IsUnique()
+    .HasFilter("\"Status\" = 'CONFIRMED'");
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<AdmissionClass>(entity =>
