@@ -21,37 +21,39 @@ export default function ClassesPage() {
   const [className, setClassName] = useState('')
   const [totalSeats, setTotalSeats] = useState('')
 
-  async function handleCreateClass(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+async function handleCreateClass(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault()
 
-    const name = className.trim()
-    const seats = Number(totalSeats)
+  const name = className.trim()
+  const seats = Number(totalSeats)
 
-    if (name.length < 2 || name.length > 100) {
-      toast.error('Class name must be between 2 and 100 characters.')
-      return
-    }
+  const classNamePattern = /^Class\s+\d+\s*[–-]\s*(Morning|Day|Evening)\s+Shift$/i
 
-    if (!Number.isInteger(seats) || seats < 1 || seats > 10000) {
-      toast.error('Total seats must be between 1 and 10,000.')
-      return
-    }
-
-    try {
-      await createClass.mutateAsync({
-        name,
-        totalSeats: seats,
-      })
-
-      toast.success('Class created successfully.')
-      setClassName('')
-      setTotalSeats('')
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to create class.',
-      )
-    }
+  if (!classNamePattern.test(name)) {
+    toast.error('Follow this format: Class 6 – Morning Shift')
+    return
   }
+
+  if (!Number.isInteger(seats) || seats < 1 || seats > 10000) {
+    toast.error('Total seats must be between 1 and 10,000.')
+    return
+  }
+
+  try {
+    await createClass.mutateAsync({
+      name,
+      totalSeats: seats,
+    })
+
+    toast.success('Class created successfully.')
+    setClassName('')
+    setTotalSeats('')
+  } catch (error) {
+    toast.error(
+      error instanceof Error ? error.message : 'Failed to create class.',
+    )
+  }
+}
 
   if (isLoading) {
     return (
@@ -122,7 +124,7 @@ export default function ClassesPage() {
               id="className"
               value={className}
               onChange={(event) => setClassName(event.target.value)}
-              placeholder="e.g. Science - Morning"
+              placeholder="e.g. Class 6 – Morning Shift"
               maxLength={100}
               required
               className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-indigo-500"
