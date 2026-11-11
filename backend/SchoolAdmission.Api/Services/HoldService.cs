@@ -73,7 +73,7 @@ var alreadyConfirmed = await _db.Holds.AnyAsync(h =>
 if (alreadyConfirmed)
 {
     return (null,
-        "You already have a confirmed admission in another class.",
+        "You already have a confirmed admission in a class.",
         false);
 }
         var existingHold = await _db.Holds.AnyAsync(h =>

@@ -124,7 +124,7 @@ async function handleCreateClass(event: FormEvent<HTMLFormElement>) {
               id="className"
               value={className}
               onChange={(event) => setClassName(event.target.value)}
-              placeholder="e.g. Class 6 – Morning Shift"
+              placeholder="e.g. Class 6 – Morning Shift / Class 7 – Day Shift / Class 8 – Evening Shift"
               maxLength={100}
               required
               className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-indigo-500"

@@ -1,6 +1,6 @@
 
 import { useLocation, Link } from 'react-router-dom'
-import { ArrowLeft, Bell, ShieldCheck } from 'lucide-react'
+import { ArrowLeft,  ShieldCheck } from 'lucide-react'
 
 const pageTitles: Record<string, string> = {
   '/admin': 'Dashboard Overview',

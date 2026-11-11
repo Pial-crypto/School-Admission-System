@@ -2,12 +2,11 @@
 services:
   postgres:
     image: postgres:16
-    container_name: school-admission-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: school_admission
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
@@ -17,6 +16,34 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
+  backend:
+    build:
+      context: ./backend/SchoolAdmission.Api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=school_admission;Username=postgres;Password=${POSTGRES_PASSWORD:-postgres}"
+      HOLD_DURATION_SECONDS: ${HOLD_DURATION_SECONDS:-300}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ""
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:

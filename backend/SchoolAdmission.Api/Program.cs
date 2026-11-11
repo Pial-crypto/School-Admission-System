@@ -1,32 +1,55 @@
+
 using Microsoft.EntityFrameworkCore;
 using SchoolAdmission.Api.Data;
 using SchoolAdmission.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddControllers();
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://localhost:8080"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
-        "Database connection string is missing.");
+        "Database connection string is missing."
+    );
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+
 builder.Services.AddScoped<HoldService>();
 builder.Services.AddScoped<ClassService>();
+
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    await db.Database.MigrateAsync();
+}
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -34,15 +57,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 
 app.UseCors("FrontendPolicy");
 
+
 app.UseAuthorization();
+
 
 app.MapControllers();
 
 app.Run();
-
 
 public partial class Program { }
